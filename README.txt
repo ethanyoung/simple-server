@@ -1,6 +1,3 @@
-Student name: Zhiyi Yang
-Student ID: 23346698
-
 File in this distribution:
 	README.txt		for imformation
 	fork-web-server.c	source file
