@@ -73,6 +73,7 @@ inetListen(const char *service, int backlog)
 	hints.ai_family = AF_UNSPEC;			/* Allows IPv4 or IPv6 */
 	hints.ai_flags = AI_PASSIVE;			/* Use wildcard IP address */
 
+	// 将主机名转换为 IP 地址
 	s = getaddrinfo (NULL, service ,&hints, &result);
 	if(s != 0)
 		return -1;
@@ -215,16 +216,16 @@ sendFile(int cfd, char * filename)
 		return -1;
 	}
 	rval = fstat (input_fd, &file_info);
-	
+
 	if(rval == -1){
 		syslog(LOG_ERR, "Error from fstat(): %s", strerror(errno));
 		return -1;
 	}
-	
+
 	printf("sending...\n");
 
 	off_t offset = 0;
-	rval = sendfile(cfd, input_fd, &offset, file_info.st_size);		
+	rval = sendfile(cfd, input_fd, &offset, file_info.st_size);
 	printf("filesize: %d, bytes sent: %d\n\n", (int)file_info.st_size, rval);
 	if(rval != file_info.st_size) {
 		syslog(LOG_ERR, "Error from sendfile(): %s", strerror(errno));
@@ -273,10 +274,10 @@ getExtention( char** types)
 		printf("mime types file not found");
 		return -1;
 	}
-	
+
 	int i = 0;
 	char * line;
-	
+
 	/* Skip the first line which contains the number of types */
 	line = malloc(10);
 	fgets(line, 10, fp);
@@ -296,7 +297,7 @@ getExtention( char** types)
 		strcpy(types[i],temp[0]);
 		i++;
 	}
-	
+
 
 	fclose(fp);
 	return i;
@@ -335,7 +336,7 @@ isFileValid(char* filename, int n, char * types[MAXITEM])
 	return -1;
 }
 
-int 
+int
 main(int argc, char *argv[])
 {
 	/* Get the number of types from mime-types.tsv */
@@ -350,7 +351,7 @@ main(int argc, char *argv[])
 	fclose(fp);
 
 	char ** extentions;			/* Contains all the valid extentions */
-	extentions = malloc((int) count);	
+	extentions = malloc((int) count);
 
 	int n = getExtention(extentions);	/* Number of extentions avalaible*/
 	if ( n == -1){
@@ -382,7 +383,7 @@ main(int argc, char *argv[])
 		syslog(LOG_ERR, "Error from segaction(): %s", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
-	
+
 	/* Creat listenning socket */
 	lfd = inetListen((char*)argv[2], 10);
 	if (lfd == -1) {
@@ -408,7 +409,7 @@ main(int argc, char *argv[])
 				syslog(LOG_ERR, "Can't create child (%s)", strerror(errno));
 				close(cfd);	/* Give up on this client */
 				break;
-	
+
 			case 0:			/* Success, for a child */
 				close(lfd);	/* Unneeded copy of listening socket */
 				handleRequest(cfd, argv[1]);
